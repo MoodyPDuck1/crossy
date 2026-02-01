@@ -2,15 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>???</title>
     
     <style>
+        * {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             margin: 0;
             display: flex;
-            font-family: "Press Start 2P", cursive;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             overflow: hidden;
             background-color: #d4ff8f;
         }
@@ -248,7 +252,7 @@
 <div id="start-message">
     <div>
         <h1>Special Challenge!</h1>
-        <p>Choose your character! (Fr just recoloring lmao)</p>
+        <p>Choose your character! (Fr just recolorings lol)</p>
         <div id="character-select">
             <div class="character-option selected" data-character="chicken">
                 <div class="character-emoji">🐔</div>
@@ -267,7 +271,7 @@
                 <div class="character-name">FOX</div>
             </div>
         </div>
-        <p style="font-size: 0.8em;">See how far you can get...<br>Die to reveal a surprise! </p>
+        <p style="font-size: 0.6em;">See how far you can get...<br>Die to reveal a surprise!</p>
         <button id="start-game">START GAME</button>
     </div>
 </div>
@@ -284,12 +288,12 @@
 <div id="result-container">
     <div id="result">
         <h1>HAPPY ONE MONTH!</h1>
-        <div class="anniversary-message" style="font-size: 0.8em;">
+        <div class="anniversary-message">
             One month down, excited to see what's next!<br><br>
             Why Crossy Road you may ask?<br>
             Honestly I don't know but I thought it was a fun idea lol<br><br>
             You made it <span id="final-score">0</span> steps in the game...<br>
-            My score is unbeatable! 
+            My score is unbeatable tho!
         </div>
         <button id="retry">PLAY AGAIN</button>
     </div>
