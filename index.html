@@ -290,6 +290,7 @@
         <h1>HAPPY ONE MONTH!</h1>
         <div class="anniversary-message">
             One month down, excited to see what's next!<br><br>
+            Thank you for everything you do<br>
             Why Crossy Road you may ask?<br>
             Honestly I don't know but I thought it was a fun idea lol<br><br>
             You made it <span id="final-score">0</span> steps in the game...<br>
@@ -436,6 +437,84 @@
         return truck;
     }
 
+    function Flower(tileIndex) {
+        const flower = new THREE.Group();
+        flower.position.x = tileIndex * tileSize;
+        
+        // Stem
+        const stem = new THREE.Mesh(
+            new THREE.BoxGeometry(2, 2, 8),
+            new THREE.MeshLambertMaterial({ color: 0x4d7c0f, flatShading: true })
+        );
+        stem.position.z = 4;
+        flower.add(stem);
+        
+        // Petals - different colors for variety
+        const petalColors = [0xff69b4, 0xffc0cb, 0xffb6c1, 0xff1493, 0xffa5d8];
+        const petalColor = petalColors[Math.floor(Math.random() * petalColors.length)];
+        
+        for (let i = 0; i < 5; i++) {
+            const petal = new THREE.Mesh(
+                new THREE.BoxGeometry(5, 5, 2),
+                new THREE.MeshLambertMaterial({ color: petalColor, flatShading: true })
+            );
+            const angle = (i / 5) * Math.PI * 2;
+            petal.position.x = Math.cos(angle) * 3;
+            petal.position.y = Math.sin(angle) * 3;
+            petal.position.z = 8;
+            flower.add(petal);
+        }
+        
+        // Center
+        const center = new THREE.Mesh(
+            new THREE.BoxGeometry(4, 4, 2),
+            new THREE.MeshLambertMaterial({ color: 0xffd700, flatShading: true })
+        );
+        center.position.z = 9;
+        flower.add(center);
+        
+        return flower;
+    }
+
+    function Butterfly(tileIndex) {
+        const butterfly = new THREE.Group();
+        butterfly.position.x = tileIndex * tileSize;
+        butterfly.position.z = 15;
+        
+        // Body
+        const body = new THREE.Mesh(
+            new THREE.BoxGeometry(2, 6, 2),
+            new THREE.MeshLambertMaterial({ color: 0x000000, flatShading: true })
+        );
+        butterfly.add(body);
+        
+        // Wings
+        const wingColors = [0xff69b4, 0x9d4edd, 0xffc0cb];
+        const wingColor = wingColors[Math.floor(Math.random() * wingColors.length)];
+        
+        const leftWing = new THREE.Mesh(
+            new THREE.BoxGeometry(8, 8, 1),
+            new THREE.MeshLambertMaterial({ color: wingColor, flatShading: true })
+        );
+        leftWing.position.x = -5;
+        butterfly.add(leftWing);
+        
+        const rightWing = new THREE.Mesh(
+            new THREE.BoxGeometry(8, 8, 1),
+            new THREE.MeshLambertMaterial({ color: wingColor, flatShading: true })
+        );
+        rightWing.position.x = 5;
+        butterfly.add(rightWing);
+        
+        // Store animation data
+        butterfly.userData = {
+            startTime: Math.random() * 100,
+            floatOffset: Math.random() * Math.PI * 2
+        };
+        
+        return butterfly;
+    }
+
     function Grass(rowIndex) {
         const grass = new THREE.Group();
         grass.position.y = rowIndex * tileSize;
@@ -446,6 +525,26 @@
         const middle = createSection(0xd4ff8f);
         middle.receiveShadow = true;
         grass.add(middle);
+        
+        // Add flowers randomly (40% chance)
+        if (Math.random() > 0.6) {
+            const numFlowers = Math.floor(Math.random() * 4) + 2;
+            for (let i = 0; i < numFlowers; i++) {
+                const tileIndex = THREE.MathUtils.randInt(minTileIndex, maxTileIndex);
+                grass.add(Flower(tileIndex));
+            }
+        }
+        
+        // Add butterflies occasionally (15% chance)
+        if (Math.random() > 0.85) {
+            const tileIndex = THREE.MathUtils.randInt(minTileIndex, maxTileIndex);
+            const butterfly = Butterfly(tileIndex);
+            grass.add(butterfly);
+            // Store reference for animation
+            if (!grass.userData.butterflies) grass.userData.butterflies = [];
+            grass.userData.butterflies.push(butterfly);
+        }
+        
         return grass;
     }
 
@@ -609,6 +708,7 @@
 
     function animate() {
         const delta = clock.getDelta();
+        const time = clock.getElapsedTime();
         
         // Vehicle animation
         metadata.forEach(row => {
@@ -622,6 +722,23 @@
                         v.ref.position.x -= row.speed * delta;
                         if (v.ref.position.x < (minTileIndex - 2) * tileSize) v.ref.position.x = (maxTileIndex + 2) * tileSize;
                     }
+                });
+            }
+        });
+        
+        // Butterfly animation
+        map.children.forEach(row => {
+            if (row.userData.butterflies) {
+                row.userData.butterflies.forEach(butterfly => {
+                    const t = time + butterfly.userData.startTime;
+                    // Gentle floating motion
+                    butterfly.position.z = 15 + Math.sin(t * 2 + butterfly.userData.floatOffset) * 3;
+                    // Wing flapping
+                    const wingAngle = Math.sin(t * 8) * 0.3;
+                    butterfly.children[1].rotation.y = wingAngle;
+                    butterfly.children[2].rotation.y = -wingAngle;
+                    // Gentle side-to-side drift
+                    butterfly.position.x += Math.sin(t * 0.5) * 0.05;
                 });
             }
         });
